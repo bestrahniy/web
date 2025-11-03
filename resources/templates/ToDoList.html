@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="../static/css/ToDoListCss.css">
+</head>
+<body>
+    <header>
+        <h1>To-Do List</h1>
+    </header>
+
+    <main class="container">
+        <section class="add-task">
+            <input type="text" id="task-input" placeholder="Введите задачу...">
+            <button id="add-btn">Добавить</button>
+        </section>
+
+        <section class="filters">
+            <button data-filter="all" class="filter active">Все</button>
+            <button data-filter="done" class="filter">Выполненные</button>
+            <button data-filter="notDone" class="filter">Невыполненные</button>
+        </section>
+
+        <section id="task-list"></section>
+    </main>
+
+    <footer>
+        <p>Создано:
+            <b>Бобков Илья 2252</b>
+            | Университет «Дубна» | 2025
+        </p>
+    </footer>
+
+    <script src="../static/js/ToDoListJs.js"></script>
+</body>
+</html>
