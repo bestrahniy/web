@@ -5,6 +5,13 @@
     font-family: "Segoe UI", Tahoma, sans-serif;
 }
 
+img {
+    width: 100%;
+    height: auto;
+    max-width: 30px;
+    max-height: 30px;
+}
+
 body {
     background: linear-gradient(135deg, #aeefff, #c7dcff);
     min-height: 100vh;
