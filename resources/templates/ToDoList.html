@@ -14,6 +14,19 @@
     <main class="container">
         <section class="add-task">
             <input type="text" id="task-input" placeholder="Введите задачу...">
+
+            <select id="task-status">
+                <option value="new">Новая</option>
+                <option value="inProgress">В процессе</option>
+                <option value="done">Завершенная</option>
+            </select>
+
+            <select id="task-priority">
+                <option value="low">Низкий приоритет</option>
+                <option value="medium" selected>Средний приоритет</option>
+                <option value="high">Высокий приоритет</option>
+            </select>
+
             <button id="add-btn">Добавить</button>
         </section>
 
@@ -21,9 +34,26 @@
             <button data-filter="all" class="filter active">Все</button>
             <button data-filter="done" class="filter">Выполненные</button>
             <button data-filter="notDone" class="filter">Невыполненные</button>
+            <button id="priority-sort-btn" class="filter">Приоритет ↓</button>
         </section>
 
-        <section id="task-list"></section>
+
+        <div id="task-list">
+            <section class="created-tasks">
+                <h2>Новые задачи</h2>
+                <div class="tasks-container"></div>
+            </section>
+
+            <section class="in-progress-task">
+                <h2>В процессе</h2>
+                <div class="tasks-container"></div>
+            </section>
+            
+            <section class="ended-task">
+                <h2>Завершенные</h2>
+                <div class="tasks-container"></div>
+            </section>
+        </div>
     </main>
 
     <footer>
