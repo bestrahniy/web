@@ -35,30 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
         high: 2
     };
 
-    addBtn.addEventListener("click", addTask);
-    input.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") addTask();
-    });
-
-    function addTask() {
-        const text = input.value.trim();
-        if (!text) return;
-
-        const status = statusSelect.value;
-        const priority = prioritySelect.value;
-
-        const task = {
-            id: Date.now(),
-            text,
-            status,
-            priority,
-            done: status === "done"
-        };
-
-        tasks.push(task);
-        input.value = "";
-        renderTasks();
-    }
+    const updateLocalStorage = () => {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    };
 
     function renderTasks() {
         createdContainer.innerHTML = "";
@@ -66,8 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
         endedContainer.innerHTML = "";
 
         let filtered = tasks.filter(t => {
-            if (currentFilter === "done") return t.done;
-            if (currentFilter === "notDone") return !t.done;
+            if (currentFilter === "done") {
+                return t.done;
+            }
+            if (currentFilter === "notDone"){
+                return !t.done;
+            }
             return true;
         });
 
@@ -99,24 +82,31 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>
                 <div class="task-buttons">
-
                     <button class="task-btn move-back" title="Назад">
                         <img src="../static/pictures/ArrowLeft.webp" alt="Back">
                     </button>
-
                     <button class="task-btn move-forward" title="Вперёд">
                         <img src="../static/pictures/ArrowRight.webp" alt="Forward">
                     </button>
-
                     <button class="task-btn edit">
                         <img src="../static/pictures/Pen.webp" alt="Edit">
                     </button>
-
                     <button class="task-btn delete">
                         <img src="../static/pictures/Trashcan.webp" alt="Delete">
                     </button>
                 </div>
             `;
+
+            const backBtn = div.querySelector(".move-back");
+            const forwardBtn = div.querySelector(".move-forward");
+
+            if (task.status === "new") {
+                backBtn.style.display = "none";
+            }
+
+            if (task.status === "done") {
+                forwardBtn.style.display = "none";
+            }
 
             if (task.status === "new") {
                 createdContainer.appendChild(div);
@@ -126,7 +116,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 endedContainer.appendChild(div);
             }
         });
+
+        updateLocalStorage();
     }
+
+    function addTask() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        const status = statusSelect.value;
+        const priority = prioritySelect.value;
+
+        const task = {
+            id: Date.now(),
+            text,
+            status,
+            priority,
+            done: status === "done"
+        };
+
+        tasks.push(task);
+        input.value = "";
+        renderTasks();
+    }
+
+    addBtn.addEventListener("click", addTask);
+
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            addTask();
+        }
+    });
 
     taskList.addEventListener("click", (e) => {
         const btn = e.target.closest("button");
@@ -137,7 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const task = tasks.find(t => t.id === id);
         if (!task) return;
 
-        // ← НАЗАД
         if (btn.classList.contains("move-back")) {
             if (task.status === "inProgress") {
                 task.status = "new";
@@ -150,7 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // → ВПЕРЁД
         if (btn.classList.contains("move-forward")) {
             if (task.status === "new") {
                 task.status = "inProgress";
@@ -162,11 +180,13 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // ОСТАЛЬНЫЕ КНОПКИ (редактировать и удалить)
         if (btn.classList.contains("delete")) {
             tasks = tasks.filter(t => t.id !== id);
             renderTasks();
-        } else if (btn.classList.contains("edit")) {
+            return;
+        }
+
+        if (btn.classList.contains("edit")) {
             const inputField = taskEl.querySelector("input");
             const editImg = btn.querySelector("img");
 
@@ -178,14 +198,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 editImg.alt = "Save";
             } else {
                 const newText = inputField.value.trim();
-                if (newText) task.text = newText;
+                if (newText) {
+                    task.text = newText;
+                }
                 inputField.readOnly = true;
                 editImg.src = "../static/pictures/Pen.webp";
                 editImg.alt = "Pen";
+                renderTasks();
             }
         }
     });
-
 
     taskList.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
@@ -195,22 +217,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const editBtn = taskEl.querySelector(".edit");
                 editBtn.click();
             }
-        }
-    });
-
-    taskList.addEventListener("focusout", (e) => {
-        const inputField = e.target;
-        if (inputField.tagName === "INPUT" && !inputField.readOnly) {
-            setTimeout(() => {
-                const taskEl = inputField.closest(".task");
-                if (taskEl && document.activeElement !== inputField) {
-                    const editBtn = taskEl.querySelector(".edit");
-                    const editImg = editBtn.querySelector("img");
-                    if (editImg.alt === "Save") {
-                        editBtn.click();
-                    }
-                }
-            }, 100);
         }
     });
 
@@ -227,10 +233,10 @@ document.addEventListener("DOMContentLoaded", () => {
         prioritySortBtn.addEventListener("click", () => {
             if (prioritySort === null) {
                 prioritySort = "desc";
-                prioritySortBtn.textContent = "Приоритет ↓";
+                prioritySortBtn.textContent = "Приоритет";
             } else if (prioritySort === "desc") {
                 prioritySort = "asc";
-                prioritySortBtn.textContent = "Приоритет ↑";
+                prioritySortBtn.textContent = "Приоритет";
             } else {
                 prioritySort = null;
                 prioritySortBtn.textContent = "Приоритет";
@@ -238,4 +244,18 @@ document.addEventListener("DOMContentLoaded", () => {
             renderTasks();
         });
     }
+
+    const savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) {
+        try {
+            const parsed = JSON.parse(savedTasks);
+            if (Array.isArray(parsed)) {
+                tasks = parsed;
+            }
+        } catch (e) {
+            tasks = [];
+        }
+    }
+
+    renderTasks();
 });
