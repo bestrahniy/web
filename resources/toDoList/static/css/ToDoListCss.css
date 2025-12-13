@@ -141,7 +141,7 @@ header {
     justify-content: space-between;
     align-items: flex-start;
     background: #ebecf1;
-    padding: 10px 15px;
+    padding: 12px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.08);
     gap: 10px;
@@ -155,16 +155,18 @@ header {
 
 .task-main {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-.task input {
+.task .task-text,
+.task input[type="text"] {
     border: none;
     background: transparent;
     font-size: 16px;
-    width: 100%;
+    width: 100%;/* Сброс стилей */
 }
 
 .task input:focus {
@@ -251,4 +253,37 @@ footer {
     text-align: center;
     padding: 10px;
     font-size: 14px;
+}
+
+.task-main{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.task-text {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-size: 16px;
+    line-height: 1.25;
+    resize: none;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    min-height: 1.25em;
+}
+
+.task-text:focus{
+    outline: none;
+    border-bottom: 1px solid #5b8def;
+}
+
+.task-text:not([readonly]){
+    background: rgba(255,255,255,0.7);
+    border: 1px solid #b8b8b8;
+    border-radius: 8px;
+    padding: 6px 8px;
 }
