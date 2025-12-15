@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Coffee House Kiosk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="../static/pictures/favicon.png">
+
+  <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app__header">
+      <div class="search-bar">
+        <input
+          type="search"
+          id="search-input"
+          class="search-bar__input"
+          placeholder="Browse your favourite coffee here.."
+        >
+        <button class="search-bar__button" type="button" aria-label="Search">
+          <img src="../static/pictures/magnifier.png" alt="search">
+        </button>
+      </div>
+
+      <button class="order-status" type="button" id="order-toggle">
+        <span class="order-status__icon">
+          <img src="../static/pictures/order-bell.png" alt="" />
+        </span>
+        <span class="order-status__text">ORDER STATUS</span>
+        <span class="order-status__count" id="order-count">0</span>
+      </button>
+    </header>
+
+    <main class="app__main">
+      <aside class="categories" aria-label="Coffee categories">
+        <nav class="categories__nav">
+          <ul class="categories__list" id="categories-list">
+          </ul>
+        </nav>
+      </aside>
+
+      <section class="products" aria-label="Coffee menu">
+        <h1 class="products__title">Coffee Menu</h1>
+
+        <div class="products__grid" id="products-grid">
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="order-panel" id="order-panel" aria-hidden="true">
+    <div class="order-panel__wrapper">
+      <header class="order-panel__header">
+        <h2 class="order-panel__title">Order Status</h2>
+        <button class="order-panel__hide" type="button" id="order-close">
+          HIDE
+        </button>
+      </header>
+
+      <section class="order-panel__body">
+        <div class="order-panel__statuses">
+          <div class="order-panel__status order-panel__status--active">
+            <div class="order-panel__status-header">
+              <span class="order-panel__status-title">Ordered</span>
+              <span class="order-panel__status-time">JUST NOW</span>
+            </div>
+            <ul class="order-panel__items" id="order-items">
+            </ul>
+          </div>
+      </section>
+
+      <footer class="order-panel__summary">
+        <div class="order-panel__summary-row">
+          <span>Items</span>
+          <span id="order-total-count">0</span>
+        </div>
+        <div class="order-panel__summary-row">
+          <span>Subtotal</span>
+          <span id="order-subtotal-value">₹0</span>
+        </div>
+        <div class="order-panel__summary-row order-panel__summary-row--muted">
+          <span>Discount -10%</span>
+          <span id="order-discount-value">₹0</span>
+        </div>
+        <div class="order-panel__summary-row order-panel__summary-row--total">
+          <span>Total</span>
+          <span id="order-total-price">₹0</span>
+        </div>
+
+      </footer>
+    </div>
+  </aside>
+  
+  <script src="../static/js/main.js"></script>
+</body>
+</html>
