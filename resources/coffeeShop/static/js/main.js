@@ -1,37 +1,38 @@
-const CART_KEY = 'coffee-kiosk-cart';
+const CART_KEY = "coffee-kiosk-cart";
 
 const CATEGORIES = [
-  { id: 'cappuccino', label: 'Cappuccino' },
-  { id: 'latte', label: 'Latte' },
-  { id: 'americano', label: 'Americano' },
-  { id: 'expresso', label: 'Expresso' },
-  { id: 'flat-white', label: 'Flat White' }
+  { id: "all", label: "All" },
+  { id: "cappuccino", label: "Cappuccino" },
+  { id: "latte", label: "Latte" },
+  { id: "americano", label: "Americano" },
+  { id: "expresso", label: "Expresso" },
+  { id: "flat-white", label: "Flat White" }
 ];
 
 const BASE_PRODUCTS = [
-  { id: 'cinnamonAndCocoa', price: 99, fileName: 'cinnamonAndCocoa.png' },
-  { id: 'drizzledWithCaramel', price: 99, fileName: 'drizzledWithCaramel.png' },
-  { id: 'burstingBlueberry', price: 99, fileName: 'burstingBlueberry.png' },
-  { id: 'cocoAndVanillaCream', price: 99, fileName: 'cocoAndVanillaCream.png' },
-  { id: 'dalgonaMacha', price: 99, fileName: 'dalgonaMacha.png' },
-  { id: 'whippedChocolate', price: 99, fileName: 'whippedChocolate.png' }
+  { id: "cinnamonAndCocoa", price: 99, fileName: "cinnamonAndCocoa.png" },
+  { id: "drizzledWithCaramel", price: 99, fileName: "drizzledWithCaramel.png" },
+  { id: "burstingBlueberry", price: 99, fileName: "burstingBlueberry.png" },
+  { id: "cocoAndVanillaCream", price: 99, fileName: "cocoAndVanillaCream.png" },
+  { id: "dalgonaMacha", price: 99, fileName: "dalgonaMacha.png" },
+  { id: "whippedChocolate", price: 99, fileName: "whippedChocolate.png" }
 ];
 
 function camelCaseToTitle(str) {
   if (!str) {
-    return '';
+    return "";
   }
-  const withSpaces = str.replace(/([a-z])([A-Z])/g, '$1 $2');
+  const withSpaces = str.replace(/([a-z])([A-Z])/g, "$1 $2");
   const lower = withSpaces.toLowerCase();
   const titled = lower.replace(/\b\w/g, ch => ch.toUpperCase());
-  return titled.replace(/\bAnd\b/g, 'and');
+  return titled.replace(/\bAnd\b/g, "and");
 }
 
 function fileNameToTitle(fileName) {
   if (!fileName) {
-    return '';
+    return "";
   }
-  const base = fileName.replace(/\.[^.]+$/, '');
+  const base = fileName.replace(/\.[^.]+$/, "");
   return camelCaseToTitle(base);
 }
 
@@ -45,24 +46,32 @@ function assignRandomCategories(products, categories) {
   const assigned = products.map(p => {
     const set = new Set();
     set.add(randomPick(categoryIds));
+
     if (Math.random() < 0.55) {
       let c2 = randomPick(categoryIds);
-      while (set.has(c2)) c2 = randomPick(categoryIds);
+      while (set.has(c2)) {
+        c2 = randomPick(categoryIds);
+      }
       set.add(c2);
     }
+
     if (Math.random() < 0.25) {
       let c3 = randomPick(categoryIds);
-      while (set.has(c3)) c3 = randomPick(categoryIds);
+      while (set.has(c3)) {
+        c3 = randomPick(categoryIds);
+      }
       set.add(c3);
     }
+
     return { ...p, categoryIds: Array.from(set) };
   });
 
   categoryIds.forEach(cid => {
-    if (!assigned.some(p => p.categoryIds.includes(cid))) {
-      const p = randomPick(assigned);
-      if (!p.categoryIds.includes(cid)) {
-        p.categoryIds.push(cid);
+    const exists = assigned.some(p => Array.isArray(p.categoryIds) && p.categoryIds.includes(cid));
+    if (!exists) {
+      const pick = randomPick(assigned);
+      if (!pick.categoryIds.includes(cid)) {
+        pick.categoryIds.push(cid);
       }
     }
   });
@@ -70,15 +79,21 @@ function assignRandomCategories(products, categories) {
   return assigned;
 }
 
-const PRODUCTS = assignRandomCategories(BASE_PRODUCTS, CATEGORIES);
+const ASSIGNABLE_CATEGORIES = CATEGORIES.filter(c => c.id !== "all");
+const PRODUCTS = assignRandomCategories(BASE_PRODUCTS, ASSIGNABLE_CATEGORIES);
 const PRODUCT_MAP = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
 
 function loadCart() {
   try {
     const raw = localStorage.getItem(CART_KEY);
-    if (!raw) return [];
+    if (!raw) {
+      return [];
+    }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+    return [];
   } catch {
     return [];
   }
@@ -89,12 +104,12 @@ function saveCart(cart) {
 }
 
 function cartTotalCount(cart) {
-  return cart.reduce((s, i) => s + (i.qty || 0), 0);
+  return cart.reduce((sum, item) => sum + (item.qty || 0), 0);
 }
 
 function getCartTotals(cart) {
   const count = cartTotalCount(cart);
-  const subtotal = cart.reduce((s, i) => s + (i.qty || 0) * (i.unitPrice || i.price || 0), 0);
+  const subtotal = cart.reduce((sum, item) => sum + (item.qty || 0) * (item.unitPrice || item.price || 0), 0);
   const discount = Math.round(subtotal * 0.1);
   const total = subtotal - discount;
   return { count, subtotal, discount, total };
@@ -102,32 +117,32 @@ function getCartTotals(cart) {
 
 function updateCartCounter() {
   const cart = loadCart();
-  const el = document.getElementById('order-count');
-  if (el) {
-    el.textContent = String(cartTotalCount(cart));
+  const countEl = document.getElementById("order-count");
+  if (countEl) {
+    countEl.textContent = String(cartTotalCount(cart));
   }
 }
 
 function renderCategories(activeId) {
-  const list = document.getElementById('categories-list');
+  const list = document.getElementById("categories-list");
   if (!list) {
     return;
   }
 
-  list.innerHTML = '';
+  list.innerHTML = "";
 
   CATEGORIES.forEach(cat => {
-    const li = document.createElement('li');
-    li.className = 'categories__item';
+    const li = document.createElement("li");
+    li.className = "categories__item";
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'categories__button';
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "categories__button";
     btn.dataset.categoryId = cat.id;
     btn.textContent = cat.label;
 
     if (cat.id === activeId) {
-      btn.classList.add('categories__button--active');
+      btn.classList.add("categories__button--active");
     }
 
     li.appendChild(btn);
@@ -135,26 +150,31 @@ function renderCategories(activeId) {
   });
 }
 
-function renderProducts(categoryId, search = '') {
-  const grid = document.getElementById('products-grid');
+function renderProducts(categoryId, search) {
+  const grid = document.getElementById("products-grid");
   if (!grid) {
     return;
   }
 
-  const q = search.trim().toLowerCase();
+  const q = String(search || "").trim().toLowerCase();
 
   const filtered = PRODUCTS.filter(p => {
-    const byCat = !categoryId || (Array.isArray(p.categoryIds) && p.categoryIds.includes(categoryId));
+    const byCat =
+      !categoryId ||
+      categoryId === "all" ||
+      (Array.isArray(p.categoryIds) && p.categoryIds.includes(categoryId));
+
     const title = fileNameToTitle(p.fileName).toLowerCase();
     const bySearch = !q || title.includes(q);
+
     return byCat && bySearch;
   });
 
-  grid.innerHTML = '';
+  grid.innerHTML = "";
 
   filtered.forEach(product => {
-    const card = document.createElement('article');
-    card.className = 'product-card';
+    const card = document.createElement("article");
+    card.className = "product-card";
     card.dataset.productId = product.id;
 
     const title = fileNameToTitle(product.fileName);
@@ -179,35 +199,33 @@ function renderProducts(categoryId, search = '') {
 
 function renderOrderPanel() {
   const cart = loadCart();
-  const list = document.getElementById('order-items');
-  const totalCountEl = document.getElementById('order-total-count');
-  const subtotalEl = document.getElementById('order-subtotal-value');
-  const discountEl = document.getElementById('order-discount-value');
-  const totalPriceEl = document.getElementById('order-total-price');
+  const list = document.getElementById("order-items");
+  const totalCountEl = document.getElementById("order-total-count");
+  const subtotalEl = document.getElementById("order-subtotal-value");
+  const discountEl = document.getElementById("order-discount-value");
+  const totalPriceEl = document.getElementById("order-total-price");
 
   if (!list || !totalCountEl || !subtotalEl || !discountEl || !totalPriceEl) {
     return;
   }
 
-  list.innerHTML = '';
+  list.innerHTML = "";
 
   cart.forEach(item => {
-    const li = document.createElement('li');
-    li.className = 'order-panel__item';
+    const li = document.createElement("li");
+    li.className = "order-panel__item";
     li.dataset.key = item.key || item.id;
 
     const product = PRODUCT_MAP[item.id];
-    const title = product ? fileNameToTitle(product.fileName) : camelCaseToTitle(item.id || '');
+    const title = product ? fileNameToTitle(product.fileName) : camelCaseToTitle(item.id || "");
 
     const options = [];
     if (item.size) {
       options.push(String(item.size).toUpperCase());
     }
-
     if (item.extra) {
       options.push(String(item.extra).toUpperCase());
     }
-
     if (item.milk) {
       options.push(`${String(item.milk).toUpperCase()} MILK`);
     }
@@ -216,7 +234,7 @@ function renderOrderPanel() {
       <span class="order-panel__item-name">${title}</span>
       <span class="order-panel__item-qty">
         ${item.qty} × ₹${item.unitPrice || item.price || 0}
-        ${options.length ? `<small>${options.join(', ')}</small>` : ''}
+        ${options.length ? `<small>${options.join(", ")}</small>` : ""}
         <button class="order-panel__item-minus" type="button">−</button>
       </span>
     `;
@@ -232,67 +250,67 @@ function renderOrderPanel() {
 }
 
 function openOrderPanel() {
-  const panel = document.getElementById('order-panel');
+  const panel = document.getElementById("order-panel");
   if (!panel) {
     return;
   }
-  panel.classList.add('order-panel--open');
-  panel.setAttribute('aria-hidden', 'false');
+  panel.classList.add("order-panel--open");
+  panel.setAttribute("aria-hidden", "false");
   renderOrderPanel();
 }
 
 function closeOrderPanel() {
-  const panel = document.getElementById('order-panel');
+  const panel = document.getElementById("order-panel");
   if (!panel) {
     return;
   }
-  panel.classList.remove('order-panel--open');
-  panel.setAttribute('aria-hidden', 'true');
+  panel.classList.remove("order-panel--open");
+  panel.setAttribute("aria-hidden", "true");
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  let currentCategory = PRODUCTS.find(p => p.categoryIds?.length)?.categoryIds[0] || CATEGORIES[0].id;
-  let currentSearch = '';
+document.addEventListener("DOMContentLoaded", () => {
+  let currentCategory = "all";
+  let currentSearch = "";
 
   renderCategories(currentCategory);
   renderProducts(currentCategory, currentSearch);
   updateCartCounter();
 
-  const categoriesList = document.getElementById('categories-list');
+  const categoriesList = document.getElementById("categories-list");
   if (categoriesList) {
-    categoriesList.addEventListener('click', event => {
-      const btn = event.target.closest('.categories__button');
+    categoriesList.addEventListener("click", event => {
+      const btn = event.target.closest(".categories__button");
       if (!btn) {
         return;
       }
 
       currentCategory = btn.dataset.categoryId;
 
-      categoriesList.querySelectorAll('.categories__button').forEach(b => {
-        b.classList.toggle('categories__button--active', b === btn);
+      categoriesList.querySelectorAll(".categories__button").forEach(b => {
+        b.classList.toggle("categories__button--active", b === btn);
       });
 
       renderProducts(currentCategory, currentSearch);
     });
   }
 
-  const searchInput = document.getElementById('search-input');
+  const searchInput = document.getElementById("search-input");
   if (searchInput) {
-    searchInput.addEventListener('input', () => {
+    searchInput.addEventListener("input", () => {
       currentSearch = searchInput.value;
       renderProducts(currentCategory, currentSearch);
     });
   }
 
-  const productsGrid = document.getElementById('products-grid');
+  const productsGrid = document.getElementById("products-grid");
   if (productsGrid) {
-    productsGrid.addEventListener('click', event => {
-      const addBtn = event.target.closest('.product-card__add');
+    productsGrid.addEventListener("click", event => {
+      const addBtn = event.target.closest(".product-card__add");
       if (!addBtn) {
         return;
       }
 
-      const card = addBtn.closest('.product-card');
+      const card = addBtn.closest(".product-card");
       if (!card) {
         return;
       }
@@ -306,25 +324,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const orderToggle = document.getElementById('order-toggle');
-  const orderClose = document.getElementById('order-close');
+  const orderToggle = document.getElementById("order-toggle");
   if (orderToggle) {
-    orderToggle.addEventListener('click', openOrderPanel);
+    orderToggle.addEventListener("click", openOrderPanel);
   }
 
+  const orderClose = document.getElementById("order-close");
   if (orderClose) {
-    orderClose.addEventListener('click', closeOrderPanel);
+    orderClose.addEventListener("click", closeOrderPanel);
   }
 
-  const orderList = document.getElementById('order-items');
+  const orderList = document.getElementById("order-items");
   if (orderList) {
-    orderList.addEventListener('click', event => {
-      const minusBtn = event.target.closest('.order-panel__item-minus');
+    orderList.addEventListener("click", event => {
+      const minusBtn = event.target.closest(".order-panel__item-minus");
       if (!minusBtn) {
         return;
       }
 
-      const li = minusBtn.closest('.order-panel__item');
+      const li = minusBtn.closest(".order-panel__item");
       if (!li) {
         return;
       }
@@ -332,11 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const key = li.dataset.key;
       const cart = loadCart();
       const item = cart.find(i => (i.key || i.id) === key);
+
       if (!item) {
         return;
       }
 
       item.qty -= 1;
+
       if (item.qty <= 0) {
         const idx = cart.indexOf(item);
         cart.splice(idx, 1);

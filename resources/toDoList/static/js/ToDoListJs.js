@@ -42,8 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const ensureOrder = () => {
         const byStatus = { new: [], inProgress: [], done: [] };
         tasks.forEach(t => {
-            if (typeof t.order !== "number") t.order = 0;
-            if (!byStatus[t.status]) byStatus[t.status] = [];
+            if (typeof t.order !== "number") {
+                t.order = 0;
+            }
+            if (!byStatus[t.status]) {
+                byStatus[t.status] = [];
+            }
             byStatus[t.status].push(t);
         });
         Object.keys(byStatus).forEach(status => {

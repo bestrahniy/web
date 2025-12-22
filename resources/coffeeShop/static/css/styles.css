@@ -37,7 +37,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Оболочка приложения с большими скруглениями, как в макете */
+/* Оболочка приложения с большими скруглениями */
 
 .app {
   background-color: var(--bg-app);
@@ -524,13 +524,14 @@ body {
 }
 
 .order-panel__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 0.75rem;
   padding: 0.45rem 0;
   font-size: 0.9rem;
+  align-items: start;
 }
+
 
 .order-panel__item-name {
   flex: 1;
@@ -596,6 +597,7 @@ body {
   height: 30px;
   object-fit: contain;
 }
+
 
 /* Адаптивность */
 

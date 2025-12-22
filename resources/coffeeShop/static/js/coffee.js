@@ -83,9 +83,15 @@ function renderOrderPanel() {
     const title = product ? titleFromId(product.id) : titleFromId(item.id || '');
 
     const options = [];
-    if (item.size) options.push(String(item.size).toUpperCase());
-    if (item.extra) options.push(String(item.extra).toUpperCase());
-    if (item.milk) options.push(`${String(item.milk).toUpperCase()} MILK`);
+    if (item.size) {
+      options.push(String(item.size).toUpperCase());
+    }
+    if (item.extra) {
+      options.push(String(item.extra).toUpperCase());
+    }
+    if (item.milk) {
+      options.push(`${String(item.milk).toUpperCase()} MILK`);
+    }
 
     li.innerHTML = `
       <span class="order-panel__item-name">${title}</span>
